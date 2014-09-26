@@ -5,6 +5,7 @@ gemspec
 
 group :test do
   gem 'factory_girl'
+  gem 'twitter'
 end
 
 

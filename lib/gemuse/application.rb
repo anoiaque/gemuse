@@ -1,21 +1,12 @@
 module Gemuse
   class Application
-    FOLDERS = ["app", "lib", "test", "config", "bin"]
-    FILES = ["./Rakefile"]
     CONSTANT_REGEXP = /\s?([[:upper:]][[[:alnum:]]:]+)[\s|\.|$]+/
     
     def constants
       @constants ||= begin
-        constants = []
-        FOLDERS.each do |folder|
-          Dir.glob("#{Bundler.root}/#{folder}/**/*.{rb,rake}").each do |file|
-            constants += constants_in_file(file)
-          end
-        end
-        FILES.each do |file|
-          constants += constants_in_file("#{Bundler.root}/#{file}")
-        end
-        constants.flatten.compact.uniq
+        Dir.glob(["#{Bundler.root}/**/*.{rb,rake}", "#{Bundler.root}/Rakefile"]).map do |file|
+          constants_in_file(file)
+        end.flatten.compact.uniq
       end
     end
     

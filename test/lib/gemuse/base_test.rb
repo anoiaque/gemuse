@@ -9,13 +9,13 @@ describe Gemuse::Base do
   
   it "must find unused gems" do
     unused = Gemuse::Base.new.unused
-    
-    assert_equal 1, unused.count
-    assert_equal 'factory_girl', unused.first.name
+
+    assert_equal 2, unused.count
+    assert_equal ["factory_girl", "twitter"], unused.map(&:name)
   end
   
   describe "when we use factory girl in a test" do
-    it "gems unused must  be zero" do
+    it "should have 0 gems unused" do
       unused = move_dummy_test { Gemuse::Base.new.unused }
     
       assert_equal 0, unused.count

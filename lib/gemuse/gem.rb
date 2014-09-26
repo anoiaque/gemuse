@@ -3,7 +3,6 @@ require 'bundler'
 module Gemuse
   class Gem
     SPEC_VERSION_REGEXP = /\.version\s*=\s*([[:upper:]][[:alnum:]]+)::VERSION/
-    MODULE_REQUIRE_REGEXP = /^[module|class]+\s+([[:upper:]][[:alnum:]]+)/
     
     attr_accessor :name, :path, :namespace
   
@@ -13,7 +12,7 @@ module Gemuse
     end
     
     def resolve_namespace
-      @namespace = namespace_from_gemspec || namespace_from_requires
+      @namespace = namespace_from_gemspec || namespace_from_lib
     end
 
     def self.all
@@ -32,20 +31,22 @@ module Gemuse
       SPEC_VERSION_REGEXP.match(File.read(gemspec_file_path)).captures.first rescue nil
     end
     
-    def namespace_from_requires
-      MODULE_REQUIRE_REGEXP.match(File.read(require_file_path)).captures.first rescue nil
+    def namespace_from_lib
+      pattern = name.gsub(/_|-/, '')
+      Dir.glob(lib_paths).each do |file|
+        c = /^[module|class]+\s+(#{pattern})/i.match(File.read(file)) and return c.captures.first
+      end
+      nil
+    end
+    
+    def lib_paths
+      ["#{path}/lib/**/*.rb"]
     end
     
     def gemspec_file_path
       Dir.glob("#{path}/*.gemspec").first
     end
     
-    def require_file_path
-      Dir.glob("#{path}/lib/*.rb") do |f| 
-        file_name = Pathname.new(f).basename.to_s
-        return f if file_name =~ /#{name}/
-      end
-    end
   
   end
 end
